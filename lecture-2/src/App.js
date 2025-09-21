@@ -1,4 +1,4 @@
-import React, { useState, Suspense, lazy } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import styled from 'styled-components';
 import Header from './components/Header';
 import InfoTable from './components/InfoTable';
@@ -6,13 +6,24 @@ import SurveyChart from './components/SurveyChart';
 import Footer from './components/Footer';
 // import ImageModal from './components/ImageModal';
 
-const LazyImageModal = lazy(() => import('./components/ImageModal'));
+const lazyWithPreload = (importFn) => {
+  const Component = lazy(importFn);
+  Component.preload = importFn;
+  return Component;
+};
+
+const LazyImageModal = lazyWithPreload(() => import('./components/ImageModal'));
 
 function App() {
   const [showModal, setShowModal] = useState(false);
-  const handleMouseEnter = () => {
-    const component = import('./components/ImageModal');
-  };
+
+  useEffect(() => {
+    LazyImageModal.preload();
+  }, []);
+
+  // const handleMouseEnter = () => {
+  //   const component = import('./components/ImageModal');
+  // };
 
   return (
     <div className='App'>
@@ -22,7 +33,7 @@ function App() {
         onClick={() => {
           setShowModal(true);
         }}
-        onMouseEnter={handleMouseEnter}
+        // onMouseEnter={handleMouseEnter}
       >
         올림픽 사진 보기
       </ButtonModal>
